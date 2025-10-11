@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.HashMap;
+import java.util.*;
 
 @Controller
 @AllArgsConstructor
@@ -21,7 +21,12 @@ public class ContentController {
 
     @GetMapping("/getMatrix")
     public String getMatrix(Model model){
-        HashMap<String, HashMap<String,String>> matrix = matrixService.getMatrix();
+        Map<String, Map<String,String>> matrix = matrixService.getMatrix();
+        System.out.println(matrix);
+        Set<String> files = matrix.keySet();
+        Set<String> users = matrixService.getUsersMatrix();
+        model.addAttribute("matrixFiles",files);
+        model.addAttribute("matrixUsers",users);
         model.addAttribute("matrix",matrix);
         return "index";
     }

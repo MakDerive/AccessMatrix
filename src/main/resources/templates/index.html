@@ -1,23 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Spring Methods</title>
+    <title>Access Matrix</title>
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-    <div class="buttons-container">
-        <form th:action="@{/getMatrix}" method="GET">
-            <button type="submit">GET Matrix</button>
-        </form>
-        <form th:action="@{/setDataMatrix}" method="GET">
-            <button type="submit">Set Data Matrix</button>
-        </form>
-        <form th:action="@{/getUserAccesses}" method="GET">
-            <button type="submit">Get User Accesses</button>
-        </form>
-        <form th:action="@{/giveAccessToUser}" method="GET">
-            <button type="submit">Give Access To User</button>
-        </form>
-    </div>
+<!-- Контейнер с кнопками -->
+<div class="buttons-container">
+    <form th:action="@{/getMatrix}" method="GET">
+        <button type="submit">GET Matrix</button>
+    </form>
+    <form th:action="@{/setDataMatrix}" method="GET">
+        <button type="submit">Set Data Matrix</button>
+    </form>
+    <form th:action="@{/getUserAccesses}" method="GET">
+        <button type="submit">Get User Accesses</button>
+    </form>
+    <form th:action="@{/giveAccessToUser}" method="GET">
+        <button type="submit">Give Access To User</button>
+    </form>
+</div>
+
+<!-- Таблица матрицы доступа -->
+<div th:if="${matrix}" class="matrix-container">
+    <table class="matrix-table">
+        <thead>
+        <tr>
+            <th class="user-header">Пользователь / Файл</th>
+            <!-- Заголовки с именами файлов -->
+            <th th:each="file : ${matrixFiles}" th:text="${file}"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Строки для каждого пользователя -->
+        <tr th:each="user : ${matrixUsers}">
+            <!-- Ячейка с именем пользователя -->
+            <td class="user-cell" th:text="${user}"></td>
+
+            <!-- Ячейки с правами доступа для каждого файла -->
+            <td th:each="file : ${matrixFiles}">
+                        <span th:if="${matrix.get(file)?.get(user)} == '+'"
+                              class="access-plus">+</span>
+                <span th:if="${matrix.get(file)?.get(user)} == '-'"
+                      class="access-minus">-</span>
+                <span th:if="${matrix.get(file)?.get(user) == null}"
+                      class="no-access"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 </body>
 </html>

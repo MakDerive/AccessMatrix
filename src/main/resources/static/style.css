@@ -1,17 +1,14 @@
 body {
     font-family: Arial, sans-serif;
+    margin: 20px;
     background-color: white;
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .buttons-container {
     display: flex;
     gap: 30px;
+    margin-bottom: 30px;
+    justify-content: center;
 }
 
 button {
@@ -32,6 +29,69 @@ button:hover {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-button:active {
-    transform: translateY(0);
+.matrix-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.matrix-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 800px;
+}
+
+.matrix-table th,
+.matrix-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.matrix-table th {
+    background-color: #007bff;
+    color: white;
+    position: sticky;
+    top: 0;
+    font-weight: bold;
+}
+
+.user-header {
+    background-color: #28a745 !important;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+.user-cell {
+    background-color: #e8f5e8;
+    font-weight: bold;
+    text-align: left;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+.access-plus {
+    background-color: #d4edda;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    display: block;
+    height: 100%;
+}
+
+.access-minus {
+    background-color: #f8d7da;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    display: block;
+    height: 100%;
+}
+
+.no-access {
+    background-color: #f8f9fa;
+    display: block;
+    height: 100%;
 }
