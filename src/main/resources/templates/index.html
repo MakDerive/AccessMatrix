@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Spring Methods</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+    <div class="buttons-container">
+        <form th:action="@{/getMatrix}" method="GET">
+            <button type="submit">GET Matrix</button>
+        </form>
+        <form th:action="@{/setDataMatrix}" method="GET">
+            <button type="submit">Set Data Matrix</button>
+        </form>
+        <form th:action="@{/getUserAccesses}" method="GET">
+            <button type="submit">Get User Accesses</button>
+        </form>
+        <form th:action="@{/giveAccessToUser}" method="GET">
+            <button type="submit">Give Access To User</button>
+        </form>
+    </div>
+</body>
+</html>
