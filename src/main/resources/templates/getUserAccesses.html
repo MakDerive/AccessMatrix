@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Accesses</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<div class="buttons-container">
+    <a th:href="@{/}"><button>Главная</button></a>
+</div>
+
+<div class="form-container">
+    <h2>Доступы пользователя</h2>
+
+    <form th:action="@{/getUserAccesses}" method="post">
+        <div class="form-group">
+            <label>Имя пользователя:</label>
+            <input type="text" name="username" required th:value="${searchedUser}">
+        </div>
+        <button type="submit">Найти доступы</button>
+    </form>
+
+    <div th:if="${searchedUser}">
+        <div th:if="${userExists}" class="user-accesses">
+            <h3>Доступы пользователя: <span th:text="${searchedUser}"></span></h3>
+            <table class="access-table">
+                <thead>
+                <tr>
+                    <th>Файл</th>
+                    <th>Доступ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="access : ${userAccesses}">
+                    <td th:text="${access.key}"></td>
+                    <td th:text="${access.value}"
+                        th:class="${access.value == '+' ? 'access-plus' : 'access-minus'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${userExists}" class="alert alert-error">
+            Пользователь '<span th:text="${searchedUser}"></span>' не найден в матрице
+        </div>
+    </div>
+</div>
+</body>
+</html>

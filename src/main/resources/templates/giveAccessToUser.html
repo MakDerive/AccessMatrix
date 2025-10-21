@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Give Access To User</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<div class="buttons-container">
+    <a th:href="@{/}"><button>Главная</button></a>
+</div>
+
+<div class="form-container">
+    <h2>Выдать доступ вручную</h2>
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <form th:action="@{/giveAccessToUser}" method="post">
+        <div class="form-group">
+            <label>Пользователь:</label>
+            <input type="text" name="user" required placeholder="Введите имя пользователя">
+            <small>Пользователь должен существовать в матрице</small>
+        </div>
+        <div class="form-group">
+            <label>Файл:</label>
+            <input type="text" name="file" required placeholder="Введите имя файла">
+            <small>Файл должен существовать в матрице</small>
+        </div>
+        <div class="form-group">
+            <label>Доступ:</label>
+            <select name="value" required>
+                <option value="+">+ (Разрешить)</option>
+                <option value="-">- (Запретить)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">Установить доступ</button>
+    </form>
+
+</div>
+</body>
+</html>
