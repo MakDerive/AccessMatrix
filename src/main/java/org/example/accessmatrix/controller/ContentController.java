@@ -44,6 +44,23 @@ public class ContentController {
         public boolean hasErrors() { return !errors.isEmpty(); }
         public boolean hasCorrections() { return !corrections.isEmpty(); }
         public boolean hasItemsToApply() { return !correctionsToApply.isEmpty(); }
+
+        // Новые поля для ошибок с возможностью применения
+        private List<String> missingUserErrors = new ArrayList<>(); // Ошибки с пользователями
+        private List<String> missingFileErrors = new ArrayList<>(); // Ошибки с файлами
+        private List<String> missingUserCorrections = new ArrayList<>(); // user file value для применения
+        private List<String> missingFileCorrections = new ArrayList<>(); // user file value для применения
+
+        // Геттеры для новых полей
+        public List<String> getMissingUserErrors() { return missingUserErrors; }
+        public List<String> getMissingFileErrors() { return missingFileErrors; }
+        public List<String> getMissingUserCorrections() { return missingUserCorrections; }
+        public List<String> getMissingFileCorrections() { return missingFileCorrections; }
+
+        public boolean hasMissingUserErrors() { return !missingUserErrors.isEmpty(); }
+        public boolean hasMissingFileErrors() { return !missingFileErrors.isEmpty(); }
+        public boolean hasMissingUserCorrections() { return !missingUserCorrections.isEmpty(); }
+        public boolean hasMissingFileCorrections() { return !missingFileCorrections.isEmpty(); }
     }
 
     @GetMapping("/")
@@ -103,12 +120,15 @@ public class ContentController {
                     String file = parts[1];
                     String value = parts[2];
 
+                    // УБИРАЕМ проверку существования - пытаемся установить доступ в любом случае
+                    // API может создать пользователя/файл автоматически при установке доступа
                     boolean success = matrixService.setAccess(user, file, value);
                     TimeUnit.MILLISECONDS.sleep(1000);
+
                     if (success) {
                         appliedCorrections.add("Установлен: " + user + " -> " + file + " = " + value);
                     } else {
-                        appliedCorrections.add("Ошибка: " + user + " -> " + file);
+                        appliedCorrections.add("Ошибка установки: " + user + " -> " + file + " = " + value);
                     }
                 }
             }
@@ -228,15 +248,28 @@ public class ContentController {
                     continue;
                 }
 
-                if (!matrixService.userExists(user)) {
-                    result.getMissingUsers().add(user);
-                    result.getErrors().add("Пользователь не найден: " + user + " -> " + file);
+                boolean userExists = matrixService.userExists(user);
+                boolean fileExists = matrixService.fileExists(file);
+
+                if (!userExists && !fileExists) {
+                    String errorMsg = "User и File не найдены: " + user + " -> " + file + " " + correctValue;
+                    result.getMissingUserErrors().add(errorMsg);
+                    result.getMissingUserCorrections().add(user + " " + file + " " + correctValue);
+                    result.getMissingFileCorrections().add(user + " " + file + " " + correctValue);
                     continue;
                 }
 
-                if (!matrixService.fileExists(file)) {
-                    result.getMissingFiles().add(file);
-                    result.getErrors().add("Файл не найден: " + user + " -> " + file);
+                if (!userExists) {
+                    String errorMsg = "User не найден: " + user + " -> " + file + " " + correctValue;
+                    result.getMissingUserErrors().add(errorMsg);
+                    result.getMissingUserCorrections().add(user + " " + file + " " + correctValue);
+                    continue;
+                }
+
+                if (!fileExists) {
+                    String errorMsg = "File не найден: " + user + " -> " + file + " " + correctValue;
+                    result.getMissingFileErrors().add(errorMsg);
+                    result.getMissingFileCorrections().add(user + " " + file + " " + correctValue);
                     continue;
                 }
 
@@ -254,7 +287,7 @@ public class ContentController {
         }
 
         if (result.getCorrections().isEmpty() && result.getErrors().isEmpty() &&
-                result.getMissingUsers().isEmpty() && result.getMissingFiles().isEmpty()) {
+                result.getMissingUserErrors().isEmpty() && result.getMissingFileErrors().isEmpty()) {
             result.getCorrections().add("Все доступы уже установлены правильно!");
         }
 

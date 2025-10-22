@@ -5,104 +5,153 @@
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
+<!-- Контейнер с кнопками навигации -->
 <div class="buttons-container">
+    <!-- Кнопка для возврата на главную страницу -->
     <a th:href="@{/}"><button>Главная</button></a>
 </div>
 
+<!-- Основной контейнер формы -->
 <div class="form-container">
+    <!-- Заголовок страницы -->
     <h2>Установить доступы из внешнего файла</h2>
 
+    <!-- Блок для отображения успешных сообщений -->
     <div th:if="${successMessage}" class="alert alert-success">
         <span th:text="${successMessage}"></span>
     </div>
+
+    <!-- Блок для отображения сообщений об ошибках -->
     <div th:if="${errorMessage}" class="alert alert-error">
         <span th:text="${errorMessage}"></span>
     </div>
 
-
+    <!-- Форма для запуска процесса проверки доступов -->
     <form th:action="@{/setDataMatrix}" method="post">
         <button type="submit" class="btn-primary">Загрузить и проверить доступы</button>
     </form>
 
-    <!-- Результаты проверки -->
+    <!-- Секция для отображения результатов проверки -->
     <div th:if="${result}" class="results-section">
         <h3>Результаты проверки:</h3>
 
-        <!-- Отсутствующие пользователи -->
-        <div th:if="${result.hasMissingUsers()}" class="missing-section">
-            <h4>⚠ Отсутствующие пользователи в матрице:</h4>
-            <ul>
-                <li th:each="user : ${result.missingUsers}" th:text="${user}"></li>
-            </ul>
-            <p class="warning">Эти пользователи будут пропущены при применении изменений.</p>
-        </div>
+        <!-- Форма для применения выбранных исправлений -->
+        <!-- Должна охватывать ВСЕ checkbox'ы -->
+        <form th:action="@{/setDataMatrix/apply}" method="post" id="applyForm">
 
-        <!-- Отсутствующие файлы -->
-        <div th:if="${result.hasMissingFiles()}" class="missing-section">
-            <h4>⚠ Отсутствующие файлы в матрице:</h4>
-            <ul>
-                <li th:each="file : ${result.missingFiles}" th:text="${file}"></li>
-            </ul>
-            <p class="warning">Эти файлы будут пропущены при применении изменений.</p>
-        </div>
+            <!-- Секция ошибок и предупреждений -->
+            <!-- Отображается, если есть ошибки связанные с отсутствующими пользователями или файлами -->
+            <div th:if="${result.hasMissingUserErrors() or result.hasMissingFileErrors()}" class="errors-section">
+                <h4>❌ Ошибки и предупреждения:</h4>
 
-        <!-- Ошибки (без checkbox) -->
-        <div th:if="${result.hasErrors()}" class="errors-section">
-            <h4>❌ Ошибки и предупреждения:</h4>
-            <div class="errors-list">
-                <div th:each="error : ${result.errors}" class="error-item">
-                    <span th:text="${error}" class="error-text"></span>
+                <!-- Подсекция для ошибок с отсутствующими пользователями -->
+                <!-- Отображается, если есть пользователи, которых нет в матрице -->
+                <div th:if="${result.hasMissingUserErrors()}" class="missing-errors-section">
+                    <h5>Отсутствующие пользователи:</h5>
+                    <div class="corrections-list">
+                        <!-- Цикл для отображения каждой ошибки с пользователем -->
+                        <div th:each="error, status : ${result.missingUserErrors}" class="correction-item">
+                            <!-- Checkbox для выбора этой ошибки для применения -->
+                            <input type="checkbox"
+                                   th:name="correctionsToApply"
+                                   th:value="${result.missingUserCorrections[status.index]}"
+                                   checked>
+                            <!-- Текст ошибки -->
+                            <span th:text="${error}" class="error-text"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Подсекция для ошибок с отсутствующими файлами -->
+                <!-- Отображается, если есть файлы, которых нет в матрице -->
+                <div th:if="${result.hasMissingFileErrors()}" class="missing-errors-section">
+                    <h5>Отсутствующие файлы:</h5>
+                    <div class="corrections-list">
+                        <!-- Цикл для отображения каждой ошибки с файлом -->
+                        <div th:each="error, status : ${result.missingFileErrors}" class="correction-item">
+                            <!-- Checkbox для выбора этой ошибки для применения -->
+                            <input type="checkbox"
+                                   th:name="correctionsToApply"
+                                   th:value="${result.missingFileCorrections[status.index]}"
+                                   checked>
+                            <!-- Текст ошибки -->
+                            <span th:text="${error}" class="error-text"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Расхождения для исправления (с checkbox) -->
-        <div th:if="${result.hasCorrections()}" class="corrections-section">
-            <h4>🔧 Расхождения для исправления:</h4>
-            <form th:action="@{/setDataMatrix/apply}" method="post" id="applyForm">
+            <!-- Секция расхождений для исправления -->
+            <!-- Отображается, если есть расхождения в правах доступа -->
+            <div th:if="${result.hasCorrections()}" class="corrections-section">
+                <h4>🔧 Расхождения для исправления:</h4>
                 <div class="corrections-list">
+                    <!-- Цикл для отображения каждого расхождения -->
                     <div th:each="correction, status : ${result.corrections}" class="correction-item">
+                        <!-- Checkbox для выбора этого расхождения для применения -->
                         <input type="checkbox"
                                th:name="correctionsToApply"
                                th:value="${result.correctionsToApply[status.index]}"
                                checked>
+                        <!-- Текст расхождения -->
                         <span th:text="${correction}" class="correction-text"></span>
                     </div>
                 </div>
+            </div>
 
-                <div th:if="${result.hasItemsToApply()}" class="actions">
+            <!-- Блок с кнопками действий -->
+            <!-- Отображается, если есть что применять: либо обычные расхождения, либо ошибки -->
+            <div th:if="${result.hasItemsToApply() or result.hasMissingUserCorrections() or result.hasMissingFileCorrections()}"
+                 class="apply-form-section">
+                <h4>Применить изменения:</h4>
+                <div class="actions">
+                    <!-- Кнопка для применения выбранных изменений -->
                     <button type="submit" class="btn-apply">Применить выбранные изменения</button>
+                    <!-- Кнопка для выбора всех checkbox'ов -->
                     <button type="button" onclick="selectAll()" class="btn-secondary">Выбрать все</button>
+                    <!-- Кнопка для снятия всех выборов -->
                     <button type="button" onclick="deselectAll()" class="btn-secondary">Снять все</button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
 
-        <!-- Сообщение об отсутствии расхождений -->
+        <!-- Секция успешного завершения проверки -->
+        <!-- Отображается, если все доступы уже установлены правильно -->
         <div th:if="${result.corrections.size() == 1 and result.corrections[0].contains('Все доступы')}" class="success-section">
             <h4>✅ Проверка завершена:</h4>
             <p th:text="${result.corrections[0]}" class="success-text"></p>
         </div>
 
-        <!-- Примененные изменения -->
+        <!-- Секция примененных изменений -->
+        <!-- Отображается после успешного применения изменений -->
         <div th:if="${appliedCorrections}" class="applied-section">
             <h4>✅ Примененные изменения:</h4>
             <ul>
+                <!-- Цикл для отображения каждого примененного изменения -->
                 <li th:each="applied : ${appliedCorrections}" th:text="${applied}"></li>
             </ul>
         </div>
     </div>
 </div>
 
+<!-- JavaScript функции для управления checkbox'ами -->
 <script>
+    /**
+     * Функция для выбора всех checkbox'ов на странице
+     * Проходит по всем элементам input типа checkbox и устанавливает им свойство checked = true
+     */
     function selectAll() {
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        document.querySelectorAll('input[type="checkbox"][name="correctionsToApply"]').forEach(checkbox => {
             checkbox.checked = true;
         });
     }
 
+    /**
+     * Функция для снятия всех выборов с checkbox'ов на странице
+     * Проходит по всем элементам input типа checkbox и устанавливает им свойство checked = false
+     */
     function deselectAll() {
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        document.querySelectorAll('input[type="checkbox"][name="correctionsToApply"]').forEach(checkbox => {
             checkbox.checked = false;
         });
     }

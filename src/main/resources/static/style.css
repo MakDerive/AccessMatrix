@@ -288,3 +288,16 @@ button:hover {
     border-radius: 8px;
     text-align: center;
 }
+
+.missing-errors-section {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+}
+
+.missing-errors-section h5 {
+    margin-top: 0;
+    color: #856404;
+}

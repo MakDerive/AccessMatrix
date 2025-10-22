@@ -61,7 +61,7 @@ public class MatrixService {
                     request,
                     String.class
             );
-            TimeUnit.MILLISECONDS.sleep(10000);
+            TimeUnit.MILLISECONDS.sleep(2000);
             return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
