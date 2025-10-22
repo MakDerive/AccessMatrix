@@ -27,8 +27,8 @@ public class ContentController {
     private static final String CORRECT_ACCESSES_URL = "http://localhost:8080/test.txt";
 
     public static class VerificationResult {
-        private List<String> errors = new ArrayList<>(); // Ошибки формата и отсутствующие сущности
-        private List<String> corrections = new ArrayList<>(); // Реальные расхождения для исправления
+        private List<String> errors = new ArrayList<>();
+        private List<String> corrections = new ArrayList<>();
         private List<String> missingUsers = new ArrayList<>();
         private List<String> missingFiles = new ArrayList<>();
         private List<String> correctionsToApply = new ArrayList<>();
@@ -45,13 +45,11 @@ public class ContentController {
         public boolean hasCorrections() { return !corrections.isEmpty(); }
         public boolean hasItemsToApply() { return !correctionsToApply.isEmpty(); }
 
-        // Новые поля для ошибок с возможностью применения
-        private List<String> missingUserErrors = new ArrayList<>(); // Ошибки с пользователями
-        private List<String> missingFileErrors = new ArrayList<>(); // Ошибки с файлами
-        private List<String> missingUserCorrections = new ArrayList<>(); // user file value для применения
-        private List<String> missingFileCorrections = new ArrayList<>(); // user file value для применения
+        private List<String> missingUserErrors = new ArrayList<>();
+        private List<String> missingFileErrors = new ArrayList<>();
+        private List<String> missingUserCorrections = new ArrayList<>();
+        private List<String> missingFileCorrections = new ArrayList<>();
 
-        // Геттеры для новых полей
         public List<String> getMissingUserErrors() { return missingUserErrors; }
         public List<String> getMissingFileErrors() { return missingFileErrors; }
         public List<String> getMissingUserCorrections() { return missingUserCorrections; }
@@ -120,8 +118,6 @@ public class ContentController {
                     String file = parts[1];
                     String value = parts[2];
 
-                    // УБИРАЕМ проверку существования - пытаемся установить доступ в любом случае
-                    // API может создать пользователя/файл автоматически при установке доступа
                     boolean success = matrixService.setAccess(user, file, value);
                     TimeUnit.MILLISECONDS.sleep(1000);
 
